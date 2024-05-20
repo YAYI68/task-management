@@ -1,14 +1,19 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { PrismaService } from 'src/prisma.service';
+import { UserInterface } from 'src/auth/interfaces/user.interface';
 
 @Injectable()
 export class TaskService {
   constructor(private readonly prisma: PrismaService) {}
   async create(createTaskDto: CreateTaskDto) {
     try {
-      console.log({ createTaskDto });
       const task = await this.prisma.task.create({
         data: {
           ...createTaskDto,
@@ -27,6 +32,11 @@ export class TaskService {
     try {
       const tasks = await this.prisma.task.findMany({
         select: {
+          id: true,
+          title: true,
+          description: true,
+          status: true,
+          dueDate: true,
           assignee: {
             select: {
               name: true,
@@ -51,6 +61,11 @@ export class TaskService {
           id: id,
         },
         select: {
+          id: true,
+          title: true,
+          description: true,
+          status: true,
+          dueDate: true,
           assignee: {
             select: {
               name: true,
@@ -87,7 +102,32 @@ export class TaskService {
           },
         },
       });
-      return task;
+      return { message: `Task assign to ${staff.name} successfully` };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw new HttpException(error.message, error.getStatus());
+      }
+      throw error;
+    }
+  }
+
+  async complete(id: string, user: UserInterface) {
+    try {
+      const task = await this.prisma.task.findUnique({
+        where: {
+          id: id,
+        },
+      });
+      if (task.assigneeId !== user.id && user.role !== 'admin') {
+        throw new UnauthorizedException();
+      }
+      await this.prisma.task.update({
+        where: { id: id },
+        data: {
+          status: 'complete',
+        },
+      });
+      return { message: `Task  completed to  successfully` };
     } catch (error) {
       if (error instanceof HttpException) {
         throw new HttpException(error.message, error.getStatus());
