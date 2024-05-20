@@ -118,6 +118,9 @@ export class TaskService {
           id: id,
         },
       });
+      if (!task) {
+        throw new HttpException('Task not found', HttpStatus.NOT_FOUND);
+      }
       if (task.assigneeId !== user.id && user.role !== 'admin') {
         throw new UnauthorizedException();
       }
@@ -158,6 +161,9 @@ export class TaskService {
       const deletedTask = await this.prisma.task.delete({
         where: { id: id },
       });
+      if (!deletedTask) {
+        throw new HttpException('Task not found', HttpStatus.NOT_FOUND);
+      }
       return { message: `${deletedTask.title} task  deleted successfully` };
     } catch (error) {
       if (error instanceof HttpException) {
