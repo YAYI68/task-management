@@ -44,6 +44,6 @@ model Task {
   description String
   status String @default("pending")
   dueDate     DateTime?
-  assigneeId String 
+  assigneeId String? 
   assignee    User?   @relation(fields: [assigneeId], references: [id],name: "TaskAssignee")
 }

@@ -13,3 +13,11 @@ export class CreateTaskDto {
   @IsString()
   dueDate: string;
 }
+
+export class StaffIdDto {
+  @IsNotEmpty()
+  @IsString()
+  staffId: string;
+}
+
+

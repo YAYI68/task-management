@@ -8,6 +8,7 @@ export class TaskService {
   constructor(private readonly prisma: PrismaService) {}
   async create(createTaskDto: CreateTaskDto) {
     try {
+      console.log({ createTaskDto });
       const task = await this.prisma.task.create({
         data: {
           ...createTaskDto,
@@ -80,6 +81,7 @@ export class TaskService {
       const task = await this.prisma.task.update({
         where: { id: id },
         data: {
+          status: 'in-progress',
           assignee: {
             connect: { id: staff.id },
           },

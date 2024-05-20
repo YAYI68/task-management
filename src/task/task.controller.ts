@@ -1,6 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { TaskService } from './task.service';
-import { CreateTaskDto } from './dto/create-task.dto';
+import { CreateTaskDto, StaffIdDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { RolesGuard } from 'src/auth/guards/role.guard';
@@ -34,6 +43,14 @@ export class TaskController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
     return this.taskService.update(id, updateTaskDto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
+  @Patch(':id/assign')
+  assignTo(@Param('id') id: string, @Body() staffIdDto: StaffIdDto) {
+    const { staffId } = staffIdDto;
+    return this.taskService.assignTo(id, staffId);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
