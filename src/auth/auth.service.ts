@@ -136,7 +136,7 @@ export class AuthService {
       if (!user) {
         throw new BadRequestException('invalid email/password');
       }
-      const isValid = await this.verifyHash(password, user.password);
+      const isValid = await this.verifyHash(user.password, password );
       if (user && isValid) {
         const payload: JwtPayload = { id: user.id, role: user.role };
         const token = await this.generateTokens(payload);
