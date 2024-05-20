@@ -158,7 +158,7 @@ export class TaskService {
       const deletedTask = await this.prisma.task.delete({
         where: { id: id },
       });
-      return deletedTask;
+      return { message: `${deletedTask.title} task  deleted successfully` };
     } catch (error) {
       if (error instanceof HttpException) {
         throw new HttpException(error.message, error.getStatus());

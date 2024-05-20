@@ -14,7 +14,8 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { RolesGuard } from 'src/auth/guards/role.guard';
 import { Role } from 'src/auth/enums/roles';
-import { Roles } from 'src/auth/decorators';
+import { GetUser, Roles } from 'src/auth/decorators';
+import { UserInterface } from 'src/auth/interfaces/user.interface';
 
 @Controller('task')
 export class TaskController {
@@ -51,6 +52,14 @@ export class TaskController {
   assignTo(@Param('id') id: string, @Body() staffIdDto: StaffIdDto) {
     const { staffId } = staffIdDto;
     return this.taskService.assignTo(id, staffId);
+  }
+
+
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/complete')
+  complete(@Param('id') id: string, @GetUser() user: UserInterface) {
+    return this.taskService.complete(id, user);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
