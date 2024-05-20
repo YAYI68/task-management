@@ -5,24 +5,24 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
-}
-
-
 // generator client {
 //   provider = "prisma-client-js"
 // }
 
 // datasource db {
-//   provider = "postgresql"
+//   provider = "sqlite"
 //   url      = env("DATABASE_URL")
 // }
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
 
 
 
@@ -43,6 +43,7 @@ model Task {
   title String
   description String
   status String @default("pending")
+  dueDate     DateTime?
   assigneeId String 
   assignee    User?   @relation(fields: [assigneeId], references: [id],name: "TaskAssignee")
 }

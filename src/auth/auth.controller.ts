@@ -13,8 +13,10 @@ import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { GetUser } from './decorators';
+import { GetUser, Roles } from './decorators';
 import { UserInterface } from './interfaces/user.interface';
+import { Role } from './enums/roles';
+import { RolesGuard } from './guards/role.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -30,8 +32,8 @@ export class AuthController {
     return this.authService.createStaff(createAuthDto);
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  // @UseGuards(new RolesGuard(Role.Admin))
+  @Roles(Role.Admin)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Get('user')
   findAll() {
     return this.authService.findAll();

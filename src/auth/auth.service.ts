@@ -14,6 +14,7 @@ import { ConfigService } from '@nestjs/config';
 import { SignInput } from './dto/sign-inputs';
 import { Role } from './enums/roles';
 import { JwtPayload } from './interfaces/jwt.interface';
+import { jwtConstants } from './contants/jwt-constant';
 
 @Injectable()
 export class AuthService {
@@ -30,11 +31,11 @@ export class AuthService {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
         expiresIn: '30m',
-        secret: await this.configService.get('JWT_SECRET'),
+        secret: jwtConstants.secret,
       }),
       this.jwtService.signAsync(payload, {
         expiresIn: '7d',
-        secret: await this.configService.get('JWT_REFRESH_SECRET'),
+        secret: jwtConstants.refresh_secret,
       }),
     ]);
     return { accessToken, refreshToken };
@@ -103,7 +104,6 @@ export class AuthService {
         data: {
           ...createUser,
           password: hashpassword,
-          role: Role.Admin,
         },
       });
       const payload: JwtPayload = {
@@ -160,7 +160,15 @@ export class AuthService {
 
   async findAll() {
     try {
-      const users = await this.prisma.user.findMany();
+      const users = await this.prisma.user.findMany({
+        select:{
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          tasks: true,
+        }
+      });
       return users;
     } catch (error) {
       if (error instanceof HttpException) {
@@ -174,6 +182,13 @@ export class AuthService {
     try {
       const user = await this.prisma.user.findUnique({
         where: { id: id },
+        select:{
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          tasks: true,
+        }
       });
       if (!user) {
         throw new NotFoundException();

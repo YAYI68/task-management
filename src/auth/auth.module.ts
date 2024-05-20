@@ -4,20 +4,16 @@ import { AuthController } from './auth.controller';
 import { PrismaService } from 'src/prisma.service';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { JwtRefreshStrategy, JwtStrategy } from './strategies';
+import { jwtConstants } from './contants/jwt-constant';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './guards/role.guard';
 
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    // JwtModule.register({ secret: process.env.JWT_SECRET }),
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
-      }),
-    }),
+    JwtModule.register({ secret: jwtConstants.secret }),
   ],
   controllers: [AuthController],
   providers: [
@@ -26,6 +22,10 @@ import { JwtRefreshStrategy, JwtStrategy } from './strategies';
     JwtStrategy,
     JwtRefreshStrategy,
     ConfigService,
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
   ],
 })
 export class AuthModule {}

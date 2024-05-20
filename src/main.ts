@@ -4,7 +4,6 @@ import { RequestMethod, ValidationPipe, VersioningType } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
-import compression from 'compression';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -26,7 +25,7 @@ async function bootstrap() {
   });
   app.enableVersioning({ type: VersioningType.URI });
   app.enableCors();
-  app.use(compression())
+  // app.use(compression())
   const config = new DocumentBuilder()
     .setTitle('Task Management API')
     .setDescription('The Task Management API description')
