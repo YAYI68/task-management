@@ -6,10 +6,15 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from './decorators';
+import { UserInterface } from './interfaces/user.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -25,23 +30,41 @@ export class AuthController {
     return this.authService.createStaff(createAuthDto);
   }
 
+  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(new RolesGuard(Role.Admin))
   @Get('user')
   findAll() {
     return this.authService.findAll();
   }
 
-  @Get('profile')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
+  @UseGuards(AuthGuard('jwt'))
+  @Get('user/:id')
+  findOne(@GetUser() user: UserInterface, @Param('id') id: string) {
+    if (user.id !== id || user.role !== 'admin') {
+      throw new UnauthorizedException();
+    }
+    return this.authService.findOne(id);
   }
 
-  @Patch('profile')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('user/:id')
+  update(
+    @GetUser() user: UserInterface,
+    @Param('id') id: string,
+    @Body() updateAuthDto: UpdateAuthDto,
+  ) {
+    if (user.id !== id || user.role !== 'admin') {
+      throw new UnauthorizedException();
+    }
+    return this.authService.update(id, updateAuthDto);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Delete('user/:id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
+  remove(@GetUser() user: UserInterface, @Param('id') id: string) {
+    if (user.id !== id || user.role !== 'admin') {
+      throw new UnauthorizedException();
+    }
+    return this.authService.remove(id);
   }
 }

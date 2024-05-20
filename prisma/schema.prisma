@@ -28,9 +28,11 @@ datasource db {
 
 model User {
   id    String     @id @default(uuid())
+  name String
   email String  @unique
   password String
   role String @default("staff")
+  refreshToken String?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   tasks      Task[]    @relation("TaskAssignee")
